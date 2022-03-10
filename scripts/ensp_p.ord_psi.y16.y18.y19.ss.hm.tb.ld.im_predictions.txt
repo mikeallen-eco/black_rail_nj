@@ -1,0 +1,151 @@
+
+model {
+
+# Priors
+mean.p ~ dunif(0, 1)          # Detection intercept on prob. scale
+alpha0 <- logit(mean.p)       #   same on logit scale
+mean.psi ~ dunif(0, 1)        # Occupancy intercept on prob. scale
+beta0 <- logit(mean.psi)      #   same on logit scale
+ for(k in 1:1){                # 1:K terms in detection model
+    alpha[k] ~ dnorm(0, 0.1)   # Covariates on logit(detection)
+ }
+for(k in 1:8){               # 1:K terms in occupancy model
+   beta[k] ~ dnorm(0, 0.1)    # Covariates on logit(occupancy)
+}
+
+# Likelihood
+for (i in 1:M) {
+  z[i] ~ dbern(psi[i])
+  logit(psi[i]) <- beta0 + inprod(beta[], occDM_hm[i,])  
+
+   for (j in 1:J) {
+      y[i,j] ~ dbern(z[i] * p[i,j]) 
+      logit(p[i,j]) <- alpha0 +     # detection (p) intercept
+         alpha[1] * ord[i,j]        # effect of ordinal date on p
+         
+   }
+}
+
+# Predict relationship between occupancy and % high marsh (other vars at median)
+for(i in 1:50){
+ logit(psi.hm[i]) <- beta0 + # year = 2015
+ beta[4] * 0.00228 + 
+ beta[5] * hm.pred[i] +
+ beta[6] * 0.005372 + 
+ beta[7] * 0 + 
+ beta[8] * 0 # median values from point covariate data
+ }
+
+
+# Predict relationship between occupancy and % scrub shrub (other vars at median)
+for(i in 1:50){
+logit(psi.ss[i]) <- beta0 + # year = 2015
+beta[4] * ss.pred[i] +
+beta[5] * 0.04737727 +
+beta[6] * 0.0033076 +
+beta[7] * 0.04082 +
+beta[8] * 0
+}
+
+# Predict relationship between occupancy and % low-intensity development (other vars at median)
+for(i in 1:50){
+logit(psi.ldev[i]) <- beta0 + # year = 2015
+beta[4] * 0.00228 +
+beta[5] * 0.04737727 +
+beta[6] * 0.0033076 +
+beta[7] * ldev.pred[i] +
+beta[8] * 0
+}
+
+# Predict relationship between occupancy and % terrestrial border (other vars at median)
+for(i in 1:50){
+logit(psi.tb[i]) <- beta0 + # year = 2015
+beta[4] * 0.00228 +
+beta[5] * 0.04737727 +
+beta[6] * tb.pred[i] +
+beta[7] * 0.04082 +
+beta[8] * 0
+}
+
+# Predict relationship between p and ordinal date 
+for(i in 1:50){
+logit(p.ord[i]) <- alpha0 + 
+alpha[1] * ord.pred[i]
+}
+
+# State
+ for(i in 1:n.state){
+ logit(psi.marsh.cells_state[i]) <- beta0 +
+ beta[4] * ss.500_state[i] +
+ beta[5] * sharp_hm.500_state[i] +
+ beta[6] * sharp_tb.500_state[i] +
+ beta[7] * ldev.100_state[i] +
+ beta[8] * imp.500_state[i]
+ }
+state.sum <- sum(psi.marsh.cells_state[])
+ 
+# County
+ for(i in 1:n.county){
+ logit(psi.marsh.cells_county[i]) <- beta0 +
+ beta[4] * ss.500_county[i] +
+ beta[5] * sharp_hm.500_county[i] +
+ beta[6] * sharp_tb.500_county[i] +
+ beta[7] * ldev.100_county[i] +
+ beta[8] * imp.500_county[i]
+ }
+county.sum <- sum(psi.marsh.cells_county[])
+ 
+# Federal
+ for(i in 1:n.fed){
+ logit(psi.marsh.cells_fed[i]) <- beta0 +
+ beta[4] * ss.500_fed[i] +
+ beta[5] * sharp_hm.500_fed[i] +
+ beta[6] * sharp_tb.500_fed[i] +
+ beta[7] * ldev.100_fed[i] +
+ beta[8] * imp.500_fed[i]
+ }
+fed.sum <- sum(psi.marsh.cells_fed[])
+ 
+# Municipal
+for(i in 1:n.mun){
+ logit(psi.marsh.cells_mun[i]) <- beta0 +
+ beta[4] * ss.500_mun[i] +
+ beta[5] * sharp_hm.500_mun[i] +
+ beta[6] * sharp_tb.500_mun[i] +
+ beta[7] * ldev.100_mun[i] +
+ beta[8] * imp.500_mun[i]
+ }
+mun.sum <- sum(psi.marsh.cells_mun[])
+ 
+# Unprotected
+for(i in 1:n.npp){
+ logit(psi.marsh.cells_npp[i]) <- beta0 +
+ beta[4] * ss.500_npp[i] +
+ beta[5] * sharp_hm.500_npp[i] +
+ beta[6] * sharp_tb.500_npp[i] +
+ beta[7] * ldev.100_npp[i] +
+ beta[8] * imp.500_npp[i]
+ }
+npp.sum <- sum(psi.marsh.cells_npp[])
+ 
+# Nonprofit
+for(i in 1:n.nonp){
+ logit(psi.marsh.cells_nonp[i]) <- beta0 +
+ beta[4] * ss.500_nonp[i] + 
+ beta[5] * sharp_hm.500_nonp[i] +
+ beta[6] * sharp_tb.500_nonp[i] + 
+ beta[7] * ldev.100_nonp[i] + 
+ beta[8] * imp.500_nonp[i]
+}
+nonp.sum <- sum(psi.marsh.cells_nonp[])
+
+all.sum <- fed.sum + nonp.sum + state.sum + county.sum + mun.sum + npp.sum
+
+fed.pct <- 100 * fed.sum / all.sum
+nonp.pct <- 100 * nonp.sum / all.sum
+state.pct <- 100 * state.sum / all.sum
+county.pct <- 100 * county.sum / all.sum
+mun.pct <- 100 * mun.sum / all.sum
+npp.pct <- 100 * npp.sum / all.sum
+
+}

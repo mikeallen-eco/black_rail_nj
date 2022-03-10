@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+writing/
+outreach/
+data/
+mapping/
+figures/
+scripts/old_code/
+output/npp_owners_marsh_q4.rds
