@@ -11,12 +11,10 @@ library(lubridate)
 library(sf)
 library(raster)
 library(fasterize)
-# library(dggridR) # installed from 
-# https://cran.r-project.org/src/contrib/Archive/dggridR/ only need if subsampling
 library(dbplyr)
 library(RSQLite)
 # devtools::install_git("https://github.com/cran/zipcode")
-library(zipcode)
+# library(zipcode) # I don't think this package got used
 `%notin%` <- Negate(`%in%`)
 # set map projection to Albers Equal Area to match GAP data 
 map_proj = "+proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs" # aka 42303
@@ -207,7 +205,8 @@ ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im <-
 ```
 # Figure - psi from ensp & ebird combined (SHARP high marsh)
 ```{r}
-load("D:/BLRA_files/big_files/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full2.Rdata")
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
 ensp.ebird_hm_psi <- apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$psi.hm, 2, function(x) quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
   t() %>%
   as.data.frame()
@@ -217,9 +216,10 @@ ensp.ebird_hm_psi.plot <-
     ensp.ebird_hm_psi,
     hm = seq(0, 0.7653146, length.out = 50)
   )
+
 colnames(ensp.ebird_hm_psi.plot) <- c("p2.75", "p10", "p50", "p90", "p97.5", "hm")
 
-ggplot(ensp.ebird_hm_psi.plot) +
+(psi.hm <- ggplot(ensp.ebird_hm_psi.plot) +
   geom_ribbon(aes(x = hm*100, ymin = p2.75*100, ymax = p97.5*100),
               fill = "firebrick",
               alpha = 0.3) +
@@ -231,11 +231,14 @@ ggplot(ensp.ebird_hm_psi.plot) +
   theme_bw() +
   theme(axis.text = element_text(size = 15),
         axis.title = element_text(size = 15))
- ggsave("figures/Fig_psi_vs_hm_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
+)
+
+ggsave("figures/Fig_psi_vs_hm_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
 ```
 # Figure - psi from ensp & ebird combined (low-intensity development)
 ```{r}
-load("D:/BLRA_files/big_files/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
 ensp.ebird_ldev_psi <- apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$psi.ldev, 2, function(x) quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
   t() %>%
   as.data.frame()
@@ -245,9 +248,10 @@ ensp.ebird_ldev_psi.plot <-
     ensp.ebird_ldev_psi,
     ldev = seq(0, 0.755102, length.out = 50)
   )
+
 colnames(ensp.ebird_ldev_psi.plot) <- c("p2.75", "p10", "p50", "p90", "p97.5", "ldev")
 
-ggplot(ensp.ebird_ldev_psi.plot) +
+(psi.ldev <- ggplot(ensp.ebird_ldev_psi.plot) +
   geom_ribbon(aes(x = ldev*100, ymin = p2.75*100, ymax = p97.5*100),
               fill = "firebrick",
               alpha = 0.3) +
@@ -259,12 +263,15 @@ ggplot(ensp.ebird_ldev_psi.plot) +
   theme_bw() +
   theme(axis.text = element_text(size = 15),
         axis.title = element_text(size = 15))
- ggsave("figures/Fig_psi_vs_ldev_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
+)
+
+# ggsave("figures/Fig_psi_vs_ldev_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
 ```
 
 # Figure - psi from ensp & ebird combined (scrub-shrub)
 ```{r}
-load("D:/BLRA_files/big_files/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
 ensp.ebird_ss_psi <- apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$psi.ss, 2, function(x) quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
   t() %>%
   as.data.frame()
@@ -274,9 +281,10 @@ ensp.ebird_ss_psi.plot <-
     ensp.ebird_ss_psi,
     ss = seq(0, 0.6134549, length.out = 50)
   )
+
 colnames(ensp.ebird_ss_psi.plot) <- c("p2.75", "p10", "p50", "p90", "p97.5", "ss")
 
-ggplot(ensp.ebird_ss_psi.plot) +
+(psi.ss <- ggplot(ensp.ebird_ss_psi.plot) +
   geom_ribbon(aes(x = ss*100, ymin = p2.75*100, ymax = p97.5*100),
               fill = "firebrick",
               alpha = 0.3) +
@@ -288,11 +296,14 @@ ggplot(ensp.ebird_ss_psi.plot) +
   theme_bw() +
   theme(axis.text = element_text(size = 15),
         axis.title = element_text(size = 15))
-ggsave("figures/Fig_psi_vs_ss_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
+)
+
+# ggsave("figures/Fig_psi_vs_ss_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
 ```
 # Figure - psi from ensp & ebird combined (terrestrial border)
 ```{r}
-load("D:/BLRA_files/big_files/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
 ensp.ebird_tb_psi <- apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$psi.tb, 2, function(x) quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
   t() %>%
   as.data.frame()
@@ -302,9 +313,10 @@ ensp.ebird_tb_psi.plot <-
     ensp.ebird_tb_psi,
     tb = seq(0, 0.5520833, length.out = 50)
   )
+
 colnames(ensp.ebird_tb_psi.plot) <- c("p2.75", "p10", "p50", "p90", "p97.5", "tb")
 
-ggplot(ensp.ebird_tb_psi.plot) +
+(psi.tb <- ggplot(ensp.ebird_tb_psi.plot) +
   geom_ribbon(aes(x = tb*100, ymin = p2.75*100, ymax = p97.5*100),
               fill = "firebrick",
               alpha = 0.3) +
@@ -316,12 +328,15 @@ ggplot(ensp.ebird_tb_psi.plot) +
   theme_bw() +
   theme(axis.text = element_text(size = 15),
         axis.title = element_text(size = 15))
-ggsave("figures/Fig_psi_vs_tb_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
+)
+
+# ggsave("figures/Fig_psi_vs_tb_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im.png", width = 7, height = 5)
 ```
 
 # Figure - p from ensp & ebird combined (duration)
 ```{r}
-load("D:/BLRA_files/big_files/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
 ensp.ebird_dur_p <- apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$p.dur, 2, function(x) quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
   t() %>%
   as.data.frame()
@@ -331,9 +346,10 @@ ensp.ebird_dur_p.plot <-
     ensp.ebird_dur_p,
     dur = seq(0.001, 5, length.out = 50)
   )
+
 colnames(ensp.ebird_dur_p.plot) <- c("p2.75", "p10", "p50", "p90", "p97.5", "dur")
 
-ggplot(ensp.ebird_dur_p.plot) +
+(p.dur <- ggplot(ensp.ebird_dur_p.plot) +
   geom_ribbon(aes(x = dur, ymin = p2.75*100, ymax = p97.5*100),
               fill = "steelblue",
               alpha = 0.3) +
@@ -345,12 +361,17 @@ ggplot(ensp.ebird_dur_p.plot) +
   theme_bw() +
   theme(axis.text = element_text(size = 15),
         axis.title = element_text(size = 15))
- ggsave("figures/Fig_p_dur_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im2.png", width = 7, height = 5)
+)
+
+# ggsave("figures/Fig_p_dur_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im2.png", width = 7, height = 5)
 ```
 # Figure - p from ensp & ebird combined (ordinal date)
 ```{r}
-load("D:/BLRA_files/big_files/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
-ensp.ebird_ord_p <- apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$p.ord, 2, function(x) quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
+ensp.ebird_ord_p <-
+  apply(ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$p.ord, 2, function(x)
+    quantile(x, c(0.0275, 0.1, 0.5, 0.9, 0.975))) %>%
   t() %>%
   as.data.frame()
 
@@ -359,9 +380,10 @@ ensp.ebird_ord_p.plot <-
     ensp.ebird_ord_p,
     dur = seq(1.19, 1.96, length.out = 50)
   )
-colnames(ensp.ebird_ord_p.plot) <- c("p2.75", "p10", "p50", "p90", "p97.5", "ord")
+colnames(ensp.ebird_ord_p.plot) <- 
+  c("p2.75", "p10", "p50", "p90", "p97.5", "ord")
 
-ggplot(ensp.ebird_ord_p.plot) +
+(p.ord <- ggplot(ensp.ebird_ord_p.plot) +
   geom_ribbon(aes(x = ord*100, ymin = p2.75*100, ymax = p97.5*100),
               fill = "steelblue",
               alpha = 0.3) +
@@ -373,10 +395,18 @@ ggplot(ensp.ebird_ord_p.plot) +
   theme_bw() +
   theme(axis.text = element_text(size = 15),
         axis.title = element_text(size = 15))
- ggsave("figures/Fig_p_ord_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im2.png", width = 7, height = 5)
-```
+)
 
-# Comparing covariate space of data sources vs. entire raster
+# ggsave("figures/Fig_p_ord_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im2.png", width = 7, height = 5)
+```
+# Create Fig. S4 - Composite of prediction plots
+```{r}
+require(gridExtra)
+grid.arrange(psi.hm, psi.ss, psi.ldev, psi.tb, p.ord, p.dur)
+
+# ggsave("figures/FigS4_prediction_plots2.pdf", arrangeGrob(psi.hm, psi.ss, psi.ldev, psi.tb, p.ord, p.dur), width= 10, height = 13, dpi = 600)
+```
+# Create Fig. S1 - Comparing covariate space of data sources vs. all marsh (entire raster)
 ```{r}
 cov.plot.data = b.brick_pred_pts %>%
   as.data.frame() %>%
@@ -399,15 +429,15 @@ ggplot(cov.plot.data, aes(x = sqrt(value), y = type)) +
   facet_wrap(~name) +
   cowplot::theme_cowplot() +
   labs(y = "", x = "Area (square root proportion within 500 m)")
-# ggsave("figures/Fig_covariate_space_ensp_ebird.png", width = 7, height = 5)
+# ggsave("figures/FigS1_covariate_space_ensp_ebird.png", width = 7, height = 5)
 
 ```
-
-# Plot marsh area with area occupied by rails
+# Create Fig. S3 - Plot marsh area with area occupied by rails
 ```{r}
 # Total occupied units by ownership - ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im
 # Load JAGS output for ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im
 load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full2.Rdata")
+
 # Summarize posteriors for the total area occupied estimates
 area_occ_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im <- data.frame(
   state.sum = ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im$sims.list$state.sum,
@@ -430,7 +460,8 @@ area_occ_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im <- data.frame(
 
 # Total occupied units by ownership - ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im
 # Load JAGS output for ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im
-load("D:/BLRA_files/big_files/JAGS_ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im_12000iter_pred_full2.Rdata")
+load("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im_12000iter_pred_full2.Rdata")
+
 # Summarize posteriors for the total area occupied estimates
 area_occ_ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im <- data.frame(
   state.sum = ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im$sims.list$state.sum,
@@ -504,7 +535,7 @@ ggplot() +
     theme_bw() +
   theme(axis.title = element_text(size = 15),
         axis.text = element_text(size = 15))
-# ggsave("figures/Fig_AreaOfOccurrence_by_ownership_20210326.jpg", width = 7, height = 5, dpi = 600)
+# ggsave("figures/FigS3_AreaOfOccurrence_by_ownership.pdf", width = 7, height = 5, dpi = 600)
 
 # relative
 (area_of_occurrence_data_ensp.ebird_rel =
@@ -521,7 +552,7 @@ cbind.data.frame(owner = area_occ$owner,
                  total = area_occ$marsh.area * 0.09, 
                  rel = area_occ$med / area_occ$marsh.area)
 ```
-# Beta coefficients
+# Create Fig. S2 - Beta coefficients
 ```{r}
 beta_posteriors_step1 <- data.frame(
 rbind(ensp_p.ord_psi.y16.y18.y19.ss.hm.tb.ld.im$sims.list$beta[,4:8],
@@ -543,10 +574,8 @@ beta_posteriors <-
   dplyr::select(1:6) %>%
   rbind(dplyr::select(beta_posteriors_step1, c(1, q2.5 = V2_q2.5, q10 = V2_q10, med = V2_med, q90 = V2_q90, q97.5 = V2_q97.5))) %>%
   mutate(model = c(rep("Survey only", 5), rep("Survey & eBird", 5)))
+
 rm(beta_posteriors_step1)
-# %>%
-  # mutate(order = 6:1,
-         # model = "Survey & eBird")
 
 # Graph area occupied by ownership type
 beta_posteriors %>%
@@ -573,9 +602,10 @@ ggplot() +
     theme_bw() +
   theme(axis.title = element_text(size = 15),
         axis.text = element_text(size = 15))
-# ggsave("figures/Fig_Beta_coefficients_20210128.jpg", width = 7, height = 5, dpi = 600)
+
+# ggsave("figures/FigS2_Beta_coefficients.pdf", width = 7, height = 5, dpi = 600)
 ```
-# Creating prediction surface rasters from Bayesian models (created on Amarel)
+# Creating prediction surface rasters from Bayesian models (created on Amarel HPC)
 Median value and uncertainty per cell
 ```{r}
 # Raster to mask tidal marsh prediction area
@@ -645,11 +675,11 @@ ensp_ebird_cell_pred_dur_med <-
 # ensp_ebird_cell_pred_dur_CIwidth <- 
 #             ensp_ebird_cell_pred_dur_97.5 - ensp_ebird_cell_pred_dur_2.5
 # writeRaster(ensp_ebird_cell_pred_dur_CIwidth, "D:/black_rail/big_output_2021_10/tif/ensp_ebird_cell_pred_dur_CIwidth.tif", overwrite = T)
-
-
 ```
-# Creating figure showing ownership breakdown by habitat quality class 
-
+# Create Fig.2 - ownership by habitat quality class
+Note: can skip all these processing steps by running:
+q <- readRDS("output/q.rds")
+near the end of the chunk.
 ```{r}
 # make function to calculate percentile
 ecdf_fun <- function(x, perc) ecdf(x)(perc)
@@ -753,7 +783,8 @@ q <- data.frame(
   order = c(rep(1,6), rep(2,6), rep(3,6), rep(4,6))
 ) %>%
   mutate(quartile = forcats::fct_reorder(quartile, order))
-saveRDS(q, "output/q.rds")
+
+# saveRDS(q, "output/q.rds")
 q <- readRDS("output/q.rds")
 
 library(wesanderson)
@@ -771,15 +802,12 @@ library(wesanderson)
   theme_bw() +
   theme(text = element_text(size = 14))
   
-# ggsave("Fig4_ownership_of_rail_habitat8.jpg", height = 5, width = 5.5, dpi = 400)
+# ggsave("figures/Fig2_ownership_of_rail_habitat.pdf", height = 5, width = 5.5, dpi = 600)
   
 # assessing changes in percentages
 qp1 <- q1/192056.9
 qp4 <- q4/205930.4
-
-
 ```
-
 # Characterizing private ownership (all marshes)
 ```{r}
 npp_owners_marsh_trim <- npp_owners_marsh %>%
@@ -801,7 +829,6 @@ nrow(npp_owners_marsh_known) # 3566 (was 3631 on 3/22/21)
 # number of unique owner names
 length(sort(unique(npp_owners_marsh_known$OWNER_NAME))) # 2655 (was 2684)
 all_owners_df <- data.frame(owner = sort(unique(npp_owners_marsh_known$OWNER_NAME)))
-
 ```
 # Manually screen private ownership names
 ```{r}
@@ -809,64 +836,7 @@ check = filter(npp_owners_marsh_known, substr(OWNER_NAME,1,1)=="Z") %>%
    arrange(OWNER_NAME) %>% dplyr::select(PAMS_PIN, OWNER_NAME, COUNTY, CALC_ACRE)
 # manually checked all (through "Z")
 ```
-
 # Manually tally private ownership states
-State 	Standard 	Postal
-Alabama 	Ala. 	AL
-Alaska 	Alaska 	AK
-Arizona 	Ariz. 	AZ
-Arkansas 	Ark. 	AR
-California 	Calif. 	CA
-Canal Zone 	C.Z. 	CZ
-Colorado 	Colo. 	CO
-Connecticut 	Conn. 	CT
-Delaware 	Del. 	DE
-District of Columbia 	D.C. 	DC
-Florida 	Fla. 	FL
-Georgia 	Ga. 	GA
-Guam 	Guam 	GU
-Hawaii 	Hawaii 	HI
-Idaho 	Idaho 	ID
-Illinois 	Ill. 	IL
-Indiana 	Ind. 	IN
-Iowa 	Iowa 	IA
-Kansas 	Kan. 	KS
-Kentucky 	Ky. 	KY
-Louisiana 	La. 	LA
-Maine 	Maine 	ME
-Maryland 	Md. 	MD
-Massachusetts 	Mass. 	MA
-Michigan 	Mich. 	MI
-Minnesota 	Minn. 	MN
-Mississippi 	Miss. 	MS
-Missouri 	Mo. 	MO
-Montana 	Mont. 	MT
-Nebraska 	Neb. 	NE
-Nevada 	Nev. 	NV
-New Hampshire 	N.H. 	NH
-New Jersey 	N.J. 	NJ
-New Mexico 	N.M. 	NM
-New York 	N.Y. 	NY
-North Carolina 	N.C. 	NC
-North Dakota 	N.D. 	ND
-Ohio 	Ohio 	OH
-Oklahoma 	Okla. 	OK
-Oregon 	Ore. 	OR
-Pennsylvania 	Pa. 	PA
-Puerto Rico 	P.R. 	PR
-Rhode Island 	R.I. 	RI
-South Carolina 	S.C. 	SC
-South Dakota 	S.D. 	SD
-Tennessee 	Tenn. 	TN
-Texas 	Texas 	TX
-Utah 	Utah 	UT
-Vermont 	Vt. 	VT
-Virgin Islands 	V.I. 	VI
-Virginia 	Va. 	VA
-Washington 	Wash. 	WA
-West Virginia 	W.Va. 	WV
-Wisconsin 	Wis. 	WI
-Wyoming 	Wyo. 	WY
 ```{r}
 # AL, AZ, AR, CA, CO, CT, DE, FL, GA, IL, IN, KS, 
 # ME, MD, MA, MI, MN, MO, NV, NH, NJ, NY, NC, OH, OK, PA
@@ -926,8 +896,8 @@ parcel_centroids <- locations_sf %>%
   st_transform(crs = 4326)
 
 # plot them to test
-# plot(st_geometry(owner_locations))
-# plot(st_geometry(parcel_centroids))
+plot(st_geometry(owner_locations))
+plot(st_geometry(parcel_centroids))
 
 # get lat long coordinates of owners and parcels & distance calculations
 p1 = st_coordinates(owner_locations)
@@ -935,7 +905,7 @@ p2 = st_coordinates(parcel_centroids)
 distances = geosphere::distHaversine(p1, p2)/1000 # distances in km
 
 # make historgram of distances
-# hist(log10(distances))
+hist(log10(distances))
 
 # join distances to owner_locations
 dist_frame <- owner_locations %>%
@@ -961,9 +931,13 @@ ne_land <- ne_countries(scale = 50, returnclass = "sf") %>%
 
 ggplot(ne_land) +
   geom_sf() +
-  geom_sf(data = owner_lines, color = alpha("purple", 0.2), outline = 1) +
-  lims(x = c(-150,23), y = c(15,65)) +
+  geom_sf(data = owner_lines, color = alpha("firebrick", 0.2),
+          size = 0.5) +
+  lims(x = c(-150,23), y = c(15,62.75)) +
   theme_bw()
+
+ggsave("figures/Fig4_owner_locations.pdf", 
+       width = 7, height = 4, dpi = 600)
 ```
 # Owner info graphs
 ```{r}
