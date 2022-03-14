@@ -788,21 +788,29 @@ q <- data.frame(
 q <- readRDS("output/q.rds")
 
 library(wesanderson)
+library(ggpattern)
   ggplot() +
-      geom_bar(aes(x = quartile, y = count*.09, fill = Owner), 
+      geom_bar_pattern(aes(x = quartile, y = count*.09, 
+                           fill = Owner, pattern = Owner), 
                data = q, 
-               position = "fill",stat = "identity") +
+               position = "fill",
+               stat = "identity",
+               pattern_color = "gray",
+               pattern_fill = "transparent",
+               color = "black") +
   geom_text(data=data.frame(x = c(1,4), y = c(-.02,-.02), 
                             q = c("Low quality", "High quality")),
             aes(x = x, y = y, label = q), size = 3, color = "darkgray") +
   scale_y_continuous(labels = scales::percent_format()) +
   labs(x = "All marshland divided into quartiles\nby Black Rail habitat suitability",
        y = "% of area") +
-  scale_fill_manual(values= c(wes_palettes$Darjeeling1, wes_palettes$GrandBudapest1)) +
+  # scale_fill_manual(values= c(wes_palettes$Darjeeling1, wes_palettes$GrandBudapest1)) +
+    scale_fill_manual(values = c("darkgray", "black", "white",
+                                 "gray", "white", "black")) +
   theme_bw() +
   theme(text = element_text(size = 14))
   
-# ggsave("figures/Fig2_ownership_of_rail_habitat.pdf", height = 5, width = 5.5, dpi = 600)
+# ggsave("figures/Fig2_ownership_of_rail_habitat_bw3.pdf", height = 5, width = 6.25, dpi = 600)
   
 # assessing changes in percentages
 qp1 <- q1/192056.9
