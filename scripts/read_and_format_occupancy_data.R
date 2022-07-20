@@ -628,4 +628,9 @@ ensp_ebird.jags.data <- list(y = y, M = nrow(y), J = ncol(y), ord = day_no_NA, s
 # Create a version of occupancy data for 'continous year' analysis
 b.site.cov.ensp_ebird_yr <- b.site.cov.ensp_ebird %>%
   mutate(year = as.numeric(yearfac) - mean(as.numeric(yearfac)))
-occDM_hm_yr <- model.matrix(~ year + ss.500 + sharp_hm.500 + sharp_tb.500 + ldev.100 + imp.500, data = b.site.cov.ensp_ebird_yr)[,-1] # Drop first col.
+occDM_hm_yr <- model.matrix(~ year + ss.500 + sharp_hm.500 + 
+                              sharp_tb.500 + ldev.100 + imp.500, 
+                            data = b.site.cov.ensp_ebird_yr)[,-1] # Drop first col.
+
+ensp_ebird.jags.data_yr <- ensp_ebird.jags.data
+ensp_ebird.jags.data_yr$occDM_hm <- occDM_hm_yr
