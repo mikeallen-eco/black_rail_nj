@@ -553,7 +553,7 @@ ebird.jags.data <- list(y = y, M = nrow(y), J = ncol(y), ord = day_no_NA, hrs = 
 
 # ENSP & eBird data combined
 
-# Create design matrix for occupancy covariates - version with SHARP high marsh
+# Create design matrix for occupancy covariates
 occDM_hm <- model.matrix(~ yearfac + ss.500 + sharp_hm.500 + sharp_tb.500 + ldev.100 + imp.500, data = b.site.cov.ensp_ebird)[,-1] # Drop first col.
 
 day_no_NA <- b.obs.cov.ord.ensp_ebird / 100
@@ -624,3 +624,8 @@ ensp_ebird.jags.data <- list(y = y, M = nrow(y), J = ncol(y), ord = day_no_NA, s
        n.nonp = nrow(filter(owner_covs_data, owner == "Nonprofit", model == "ss.500")),
        n.npp = nrow(filter(owner_covs_data, owner == "Unprotected", model == "ss.500"))
 )
+
+# Create a version of occupancy data for 'continous year' analysis
+b.site.cov.ensp_ebird_yr <- b.site.cov.ensp_ebird %>%
+  mutate(year = as.numeric(yearfac) - mean(as.numeric(yearfac)))
+occDM_hm_yr <- model.matrix(~ year + ss.500 + sharp_hm.500 + sharp_tb.500 + ldev.100 + imp.500, data = b.site.cov.ensp_ebird_yr)[,-1] # Drop first col.
