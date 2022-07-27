@@ -1087,11 +1087,31 @@ ensp_ebird_p.ord.dur_psi.yrcont.ss.hm.tb.ld.im <-
  saveRDS(ensp_ebird_p.ord.dur_psi.yrcont.ss.hm.tb.ld.im, file = "D:/black_rail/big_output_2022_07/JAGS_ensp_ebird_p.ord.dur_psi.yrcont.ss.hm.tb.ld.im_12000iter.rds")
 ```
 # Creating prediction surface based on 'continuous year' model
-Formatted to create script 
+Note: this was run on the Amarel HPC cluster. See R script, BASH script, and BUGS model with the name 'ensp_ebird_cell_predict_yrcon_for_Amarel' in the "scripts/amarel/" folder.
+
+# Create tables of model outputs (year factor and continuous)
 ```{r}
+
  ee <-
+  readRDS("D:/black_rail/big_output_2021_10/rda/JAGS_ensp_ebird_p.ord.dur_psi.yr.ss.hm.tb.ld.im_12000iter_pred_full.Rdata")
+
+ ee_ycon <-
   readRDS("D:/black_rail/big_output_2022_07/JAGS_ensp_ebird_p.ord.dur_psi.yrcont.ss.hm.tb.ld.im_12000iter.rds")
 
+
+```
+
+
+
+
+
+
+
+
+# delete
+```{r}
+ 
+ 
 beta <- ee$sims.list$beta
 beta0 <- ee$sims.list$beta0
 pp <- b.brick_pred_pts
