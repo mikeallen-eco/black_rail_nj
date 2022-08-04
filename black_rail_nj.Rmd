@@ -714,10 +714,10 @@ library(ggpattern)
                pattern_fill = "transparent",
                color = "black") +
   geom_text(data=data.frame(x = c(1,4), y = c(-.02,-.02), 
-                            q = c("Low quality", "High quality")),
+                            q = c("Low probability", "High probability")),
             aes(x = x, y = y, label = q), size = 3, color = "darkgray") +
   scale_y_continuous(labels = scales::percent_format()) +
-  labs(x = "All marshland divided into quartiles\nby Black Rail habitat suitability",
+  labs(x = "All marshland divided into quartiles\nby Black Rail occurence probability",
        y = "% of area") +
   # scale_fill_manual(values= c(wes_palettes$Darjeeling1, wes_palettes$GrandBudapest1)) +
     scale_fill_manual(values = c("darkgray", "black", "white",
@@ -725,7 +725,7 @@ library(ggpattern)
   theme_bw() +
   theme(text = element_text(size = 14))
   
-# ggsave("figures/Fig2_ownership_of_rail_habitat_bw3.pdf", height = 5, width = 6.25, dpi = 600)
+ggsave("figures/Fig2_ownership_of_rail_habitat_bw4.pdf", height = 5, width = 6.25, dpi = 600)
   
 # assessing changes in percentages
 qp1 <- q1/192056.9
@@ -1133,3 +1133,16 @@ save_kable(ee_table,
            "output/ensp_ebird.jags.out.table.html")
 
 ```
+# Correlation between mapped predictions of 'continous year' and 'categorical year' models
+```{r}
+
+cata <- read.csv("D:/black_rail/big_output_2021_10/csv/ensp_ebird_cell_predict_out_summary_dur.csv")
+
+cont <- read.csv("D:/black_rail/big_output_2022_07/ensp_ebird_cell_predict_out_yrcon.csv")
+
+plot(cata$med ~ cont$q50)
+
+cor(cata$med, cont$q50) # 0.9968038
+
+```
+
