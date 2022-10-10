@@ -717,7 +717,7 @@ library(ggpattern)
                             q = c("Low probability", "High probability")),
             aes(x = x, y = y, label = q), size = 3, color = "darkgray") +
   scale_y_continuous(labels = scales::percent_format()) +
-  labs(x = "All marshland divided into quartiles\nby Black Rail occurence probability",
+  labs(x = "All marshland divided into quartiles\nby Black Rail occurrence probability",
        y = "% of area") +
   # scale_fill_manual(values= c(wes_palettes$Darjeeling1, wes_palettes$GrandBudapest1)) +
     scale_fill_manual(values = c("darkgray", "black", "white",
@@ -725,7 +725,7 @@ library(ggpattern)
   theme_bw() +
   theme(text = element_text(size = 14))
   
-ggsave("figures/Fig2_ownership_of_rail_habitat_bw4.pdf", height = 5, width = 6.25, dpi = 600)
+ggsave("figures/Fig2_ownership_of_rail_habitat_bw4_fixed2.pdf", height = 5, width = 6.25, dpi = 600)
   
 # assessing changes in percentages
 qp1 <- q1/192056.9
